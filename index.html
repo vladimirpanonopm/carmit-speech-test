@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>Тест озвучки: голос Кармит</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: #f0f5fa;
+      direction: rtl;
+    }
+    button {
+      padding: 14px 24px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #dbeeff;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔈 Озвучка на иврите — Карמיט</h1>
+  <p>Нажмите кнопку, чтобы услышать «שלום» голосом Кармит</p>
+  <button onclick="speak()">Произнести שלום</button>
+  <p id="status"></p>
+
+  <script>
+    let voices = [];
+
+    function loadVoices() {
+      voices = speechSynthesis.getVoices();
+    }
+
+    function speak() {
+      const status = document.getElementById("status");
+      const text = "שלום";
+
+      if (!voices.length) {
+        loadVoices();
+      }
+
+      const carmit = voices.find(v => v.name === "Carmit" && v.lang === "he-IL");
+      if (!carmit) {
+        status.textContent = "❌ Голос 'Carmit (he-IL)' не найден.";
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.voice = carmit;
+      utterance.lang = "he-IL";
+      utterance.rate = 0.9;
+
+      speechSynthesis.speak(utterance);
+      status.textContent = "✅ Воспроизведение...";
+    }
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  </script>
+</body>
+</html>
