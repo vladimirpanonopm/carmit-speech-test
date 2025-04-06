@@ -3,7 +3,7 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <title>Тест озвучки: голос Кармит</title>
+  <title>Озвучка Кармит: שלום</title>
   <style>
     body {
       font-family: sans-serif;
@@ -24,47 +24,52 @@
     p {
       font-size: 18px;
     }
+    #loading {
+      color: gray;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-  <h1>🔈 Озвучка на иврите — Карמיט</h1>
-  <p>Нажмите кнопку, чтобы услышать «שלום» голосом Кармит</p>
-  <button onclick="speak()">Произнести שלום</button>
-  <p id="status"></p>
+  <h1>🔈 Озвучка Кармит: שלום</h1>
+  <p>Нажмите кнопку, чтобы услышать слово «שלום» голосом Кармит</p>
+  <button id="speakBtn" onclick="speak()" disabled>Произнести שלום</button>
+  <p id="status">🔄 Загрузка голосов...</p>
 
   <script>
     let voices = [];
+    let carmit = null;
 
     function loadVoices() {
       voices = speechSynthesis.getVoices();
+      carmit = voices.find(v => v.name === "Carmit" && v.lang === "he-IL");
+      const speakBtn = document.getElementById("speakBtn");
+      const status = document.getElementById("status");
+
+      if (carmit) {
+        speakBtn.disabled = false;
+        status.textContent = "✅ Голос 'Carmit' загружен. Готово к воспроизведению.";
+      } else {
+        status.textContent = "❌ Голос 'Carmit (he-IL)' не найден.";
+      }
     }
 
     function speak() {
       const status = document.getElementById("status");
-      const text = "שלום";
-
-      if (!voices.length) {
-        loadVoices();
-      }
-
-      const carmit = voices.find(v => v.name === "Carmit" && v.lang === "he-IL");
-      if (!carmit) {
-        status.textContent = "❌ Голос 'Carmit (he-IL)' не найден.";
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance("שלום");
       utterance.voice = carmit;
       utterance.lang = "he-IL";
       utterance.rate = 0.9;
-
       speechSynthesis.speak(utterance);
-      status.textContent = "✅ Воспроизведение...";
+      status.textContent = "🔊 Воспроизведение...";
     }
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
       speechSynthesis.onvoiceschanged = loadVoices;
     }
+
+    // На случай, если onvoiceschanged не сработает
+    window.onload = () => setTimeout(loadVoices, 500);
   </script>
 </body>
 </html>
