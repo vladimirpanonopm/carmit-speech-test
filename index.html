@@ -3,7 +3,7 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <title>Озвучка Кармит: שלום</title>
+  <title>שלום — стабильная озвучка Кармит</title>
   <style>
     body {
       font-family: sans-serif;
@@ -19,43 +19,58 @@
       border-radius: 8px;
       background-color: #dbeeff;
       cursor: pointer;
-      margin-top: 20px;
+      margin: 10px;
     }
     p {
       font-size: 18px;
-    }
-    #loading {
-      color: gray;
       margin-top: 20px;
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🔈 Озвучка Кармит: שלום</h1>
-  <p>Нажмите кнопку, чтобы услышать слово «שלום» голосом Кармит</p>
-  <button id="speakBtn" onclick="speak()" disabled>Произнести שלום</button>
-  <p id="status">🔄 Загрузка голосов...</p>
+  <h1>🔈 Озвучка "שלום" голосом Кармит</h1>
+  <p>Нажмите "Загрузить голос", дождитесь подтверждения, затем "Произнести שלום"</p>
+
+  <button onclick="loadCarmit()">🔄 Загрузить голос</button>
+  <button id="speakBtn" onclick="speak()" disabled>🔊 Произнести שלום</button>
+  <p id="status">Ожидание загрузки...</p>
 
   <script>
     let voices = [];
     let carmit = null;
 
-    function loadVoices() {
+    function loadVoicesManually() {
       voices = speechSynthesis.getVoices();
       carmit = voices.find(v => v.name === "Carmit" && v.lang === "he-IL");
+
       const speakBtn = document.getElementById("speakBtn");
       const status = document.getElementById("status");
 
       if (carmit) {
         speakBtn.disabled = false;
-        status.textContent = "✅ Голос 'Carmit' загружен. Готово к воспроизведению.";
+        status.textContent = "✅ Голос 'Carmit' найден. Можно воспроизводить.";
       } else {
-        status.textContent = "❌ Голос 'Carmit (he-IL)' не найден.";
+        speakBtn.disabled = true;
+        status.textContent = "❌ Голос 'Carmit (he-IL)' не найден. Попробуйте ещё раз.";
       }
+    }
+
+    function loadCarmit() {
+      // Принудительно обновим список голосов
+      speechSynthesis.getVoices();
+      setTimeout(loadVoicesManually, 300);
     }
 
     function speak() {
       const status = document.getElementById("status");
+      if (!carmit) {
+        status.textContent = "❌ Голос не загружен.";
+        return;
+      }
       const utterance = new SpeechSynthesisUtterance("שלום");
       utterance.voice = carmit;
       utterance.lang = "he-IL";
@@ -64,12 +79,10 @@
       status.textContent = "🔊 Воспроизведение...";
     }
 
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
-
-    // На случай, если onvoiceschanged не сработает
-    window.onload = () => setTimeout(loadVoices, 500);
+    // На всякий случай вызов при загрузке
+    window.onload = () => {
+      setTimeout(loadVoicesManually, 500);
+    };
   </script>
 </body>
 </html>
